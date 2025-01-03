@@ -1,48 +1,89 @@
 ### Azure Terraform Documentation for AKS and ACR Deployment Using Classic Editor Pipeline
 
-This repository contains Terraform scripts to automate the deployment of an Azure Kubernetes Service (AKS) cluster and Azure Container Registry (ACR) within an Azure environment. The deployment is managed via Terraform and can be integrated into an Azure DevOps Classic Editor pipeline for continuous infrastructure deployment.
+## Overview
+This repository contains Terraform scripts that automate the deployment of the following Azure resources:
+- **Azure Kubernetes Service (AKS)**: A managed Kubernetes cluster for deploying containerized applications.
+- **Azure Container Registry (ACR)**: A private registry to store Docker container images.
+- **Azure Resource Group**: A container that holds related resources for an Azure solution.
 
-#Prerequisites
+---
 
-Before using these Terraform scripts, ensure the following:
+### **Files Involved**
+1. **backend.tf**
+2. **main.tf**
+3. **terraform.tfvars**
+4. **variables.tf**
 
-- Azure Subscription: You need an active Azure subscription.
-- Terraform: Ensure Terraform is installed. You can download it from [Terraform Downloads](https://www.terraform.io/downloads.html).
-- Azure CLI: Ensure Azure CLI is installed and configured. You can download it from [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
-- Azure DevOps Account: This setup is intended for use with Azure DevOps pipelines. You need an Azure DevOps account to automate the deployment.
-- Basic Azure Knowledge: Understanding of Azure Kubernetes Service (AKS), Azure Container Registry (ACR), and resource groups.
+---
 
-## File Structure
+## **1. Backend Configuration**
 
-- `main.tf`: Contains the main Terraform configuration to create resources such as the AKS cluster and ACR.
-- `variables.tf`: Defines input variables for customization.
-- `terraform.tfvars`: Contains variable values for the deployment (can be customized for each environment).
-- `backend.tf`: (Optional) Configures remote state storage in Azure Storage.
+### **File: backend.tf**
 
-## Terraform Configuration Overview
+The `backend.tf` file defines the backend configuration for Terraform's state management. It configures an Azure Storage Account to store the Terraform state file. This enables collaboration and ensures the state is safely stored in the cloud.
 
-### `main.tf`
+- **resource_group_name**: Specifies the resource group to store the Terraform backend.
+- **storage_account_name**: Specifies the Azure Storage Account used to store the state.
+- **container_name**: Specifies the container in the Storage Account to store the state file.
+- **key**: The name of the state file (`k8s-demo.tfstate`).
 
-This file defines the core Azure resources, including:
+This file ensures that the Terraform state is stored in a secure and centralized location in Azure.
 
-- azurerm_resource_group: Creates the Azure resource group `k8s-demo-rg`.
-- azurerm_kubernetes_cluster: Provisions an Azure Kubernetes Service (AKS) cluster named `k8s-demo-cluster`.
-- azurerm_container_registry: Creates an Azure Container Registry (ACR) named `k8sdemoacr`.
-- Outputs:
-  - `kube_config`: Outputs the Kubernetes configuration for accessing the AKS cluster.
-  - `acr_login_server`: Outputs the ACR login server address.
+---
 
-### `variables.tf`
+## **2. Resource Creation and Deployment**
 
-Defines the configurable variables for the infrastructure:
+### **File: main.tf**
 
-- `resource_group_name`: Name of the resource group (`k8s-demo-rg`).
-- `location`: Azure region for resource deployment (e.g., `East US`).
-- `aks_name`: Name of the AKS cluster (`k8s-demo-cluster`).
-- `dns_prefix`: DNS prefix for the AKS cluster (`k8sdemo`).
-- `node_count`: Number of nodes in the AKS cluster (e.g., `2`).
-- `vm_size`: Size of the virtual machines in the AKS node pool (e.g., `Standard_DS2_v2`).
-- `acr_name`: Name of the Azure Container Registry (`k8sdemoacr`).
+The `main.tf` file defines the resources that will be created on Azure. It includes:
+
+- **Provider Configuration**: Configures the Terraform Azure provider (`azurerm`).
+- **Resource Group**: Defines the Azure Resource Group where resources will be created.
+- **Azure Kubernetes Service (AKS)**: Defines the managed Kubernetes cluster with details like name, location, node count, and VM size.
+- **Azure Container Registry (ACR)**: Defines the Azure Container Registry for storing Docker images.
+- **Outputs**: Outputs the Kubernetes cluster configuration (`kube_config`) and ACR login server for further use.
+
+Key resources defined in this file:
+- **azurerm_resource_group**: Creates an Azure Resource Group.
+- **azurerm_kubernetes_cluster**: Creates an AKS cluster with a specified node pool.
+- **azurerm_container_registry**: Creates an ACR instance for Docker image storage.
+
+---
+
+## **3. Variable Definitions**
+
+### **File: variables.tf**
+
+The `variables.tf` file defines all the input variables for the Terraform configuration. These variables allow for dynamic configuration of the resources and help separate configuration from actual values.
+
+The following variables are defined:
+- **resource_group_name**: The name of the resource group where the resources will be created.
+- **location**: The Azure region where resources will be deployed (e.g., "East US").
+- **aks_name**: The name of the Azure Kubernetes Service (AKS) cluster.
+- **dns_prefix**: The DNS prefix for the AKS cluster.
+- **node_count**: The number of nodes in the AKS cluster.
+- **vm_size**: The virtual machine size for the AKS nodes.
+- **acr_name**: The name of the Azure Container Registry (ACR).
+
+These variables can be customized in the `terraform.tfvars` file to modify resource configurations.
+
+---
+
+## **4. Terraform Variables Values**
+
+### **File: terraform.tfvars**
+
+The `terraform.tfvars` file contains the actual values for the variables defined in `variables.tf`. These values are used to configure the resources and will be applied when Terraform is run.
+
+Example of the variable values in `terraform.tfvars`:
+- **resource_group_name**: "k8s-demo-rg"
+- **location**: "East US"
+- **aks_name**: "k8s-demo-cluster"
+- **dns_prefix**: "k8sdemo"
+- **node_count**: 2
+- **vm_size**: "Standard_DS2_v2"
+- **acr_name**: "k8sdemoacr"
+
 
 ### Steps for creating Classic Editor Pipeline
 # Step 1: Create a New Pipeline
