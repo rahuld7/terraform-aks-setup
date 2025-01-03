@@ -1,4 +1,4 @@
-#Azure Terraform Documentation for AKS and ACR Deployment Using Classic Editor Pipeline
+### Azure Terraform Documentation for AKS and ACR Deployment Using Classic Editor Pipeline
 
 This repository contains Terraform scripts to automate the deployment of an Azure Kubernetes Service (AKS) cluster and Azure Container Registry (ACR) within an Azure environment. The deployment is managed via Terraform and can be integrated into an Azure DevOps Classic Editor pipeline for continuous infrastructure deployment.
 
